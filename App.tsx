@@ -1,20 +1,56 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { ReactNode, useState } from 'react';
+import { Button, StyleSheet, Text, View } from 'react-native';
+import { GestureDetector, GestureHandlerRootView, usePanGesture } from 'react-native-gesture-handler';
+import { useDerivedValue, useSharedValue } from 'react-native-reanimated';
 
-export default function App() {
+const MyBall = ({ children }: { children: ReactNode }) => {
+  const count = useSharedValue(0)
+
+  useDerivedValue(() => count.value * 2)
+
+  const something = () => {
+    'worklet'
+    console.log(count.value)
+  }
+
+  const gesture = usePanGesture({
+    onBegin: () => {
+      something()
+    },
+  });
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <GestureHandlerRootView>
+      <GestureDetector gesture={gesture}>
+        <View style={styles.container}>{children}</View>
+      </GestureDetector>
+    </GestureHandlerRootView>
   );
 }
 
+export default function App() {
+  const [bool, setBool] = useState(() => false)
+
+  return (
+    <MyBall>
+      <Button title="rerender" onPress={() => setBool(x => !x)} />
+      <Text style={{ fontSize: 14, marginTop: 50 }}>{`${bool}`}</Text>
+    </MyBall>
+  )
+}
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+  ball: {
+    width: 100,
+    height: 100,
+    borderRadius: 100,
+    backgroundColor: 'blue',
+    alignSelf: 'center',
   },
+  container: {
+    flexDirection: "column",
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexGrow: 1
+  }
 });
